@@ -6,9 +6,12 @@ import API_CONFIG from '@/config/api'
 
 // 搜索表单数据
 const searchForm = reactive({
-  name: '',
-  email: '',
-  phone: ''
+  被诊者: '',
+  号码: '',
+  电脑型号: '',
+  业务: '',
+  年级学院: '',
+  操作人员: ''
 })
 
 // 搜索结果
@@ -18,7 +21,7 @@ const loading = ref(false)
 // 搜索提交记录
 const handleSearch = async () => {
   // 检查是否至少填写了一个搜索条件
-  if (!searchForm.name && !searchForm.email && !searchForm.phone) {
+  if (!searchForm.被诊者 && !searchForm.号码 && !searchForm.电脑型号 && !searchForm.业务 && !searchForm.年级学院 && !searchForm.操作人员) {
     ElMessage.warning('请至少填写一个搜索条件')
     return
   }
@@ -28,15 +31,18 @@ const handleSearch = async () => {
   try {
     // 构建查询参数
     const params = new URLSearchParams()
-    if (searchForm.name) params.append('name', searchForm.name)
-    if (searchForm.email) params.append('email', searchForm.email)
-    if (searchForm.phone) params.append('phone', searchForm.phone)
+    if (searchForm.被诊者) params.append('被诊者', searchForm.被诊者)
+    if (searchForm.号码) params.append('号码', searchForm.号码)
+    if (searchForm.电脑型号) params.append('电脑型号', searchForm.电脑型号)
+    if (searchForm.业务) params.append('业务', searchForm.业务)
+    if (searchForm.年级学院) params.append('年级学院', searchForm.年级学院)
+    if (searchForm.操作人员) params.append('操作人员', searchForm.操作人员)
 
     const response = await axios.get(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SEARCH}?${params.toString()}`)
     
-    if (response.data && Array.isArray(response.data)) {
-      searchResults.value = response.data
-      ElMessage.success(`找到 ${response.data.length} 条记录`)
+    if (response.data && response.data.code === 200 && Array.isArray(response.data.data)) {
+      searchResults.value = response.data.data
+      ElMessage.success(`找到 ${response.data.data.length} 条记录`)
     } else {
       searchResults.value = []
       ElMessage.info('未找到匹配的记录')
@@ -60,50 +66,96 @@ const handleSearch = async () => {
 
 // 重置搜索表单
 const resetForm = () => {
-  searchForm.name = ''
-  searchForm.email = ''
-  searchForm.phone = ''
+  searchForm.被诊者 = ''
+  searchForm.号码 = ''
+  searchForm.电脑型号 = ''
+  searchForm.业务 = ''
+  searchForm.年级学院 = ''
+  searchForm.操作人员 = ''
   searchResults.value = []
 }
 
 // 格式化日期
 const formatDate = (dateString: string) => {
   if (!dateString) return '未知'
-  return new Date(dateString).toLocaleString('zh-CN')
+  try {
+    return new Date(dateString).toLocaleString('zh-CN')
+  } catch {
+    return dateString
+  }
 }
 </script>
 
 <template>
   <div class="function2-container">
     <div class="search-section">
-      <h2 class="section-title">查询提交记录</h2>
+      <h2 class="section-title">查询维修工单</h2>
       
       <!-- 搜索表单 -->
       <el-form :model="searchForm" label-width="80px" class="search-form">
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="姓名">
+            <el-form-item label="被诊者">
               <el-input 
-                v-model="searchForm.name" 
-                placeholder="请输入姓名"
+                v-model="searchForm.被诊者" 
+                placeholder="请输入被诊者姓名"
                 clearable
               />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="邮箱">
+            <el-form-item label="联系号码">
               <el-input 
-                v-model="searchForm.email" 
-                placeholder="请输入邮箱"
+                v-model="searchForm.号码" 
+                placeholder="请输入联系号码"
                 clearable
               />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="电话">
+            <el-form-item label="电脑型号">
               <el-input 
-                v-model="searchForm.phone" 
-                placeholder="请输入电话"
+                v-model="searchForm.电脑型号" 
+                placeholder="请输入电脑型号"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="业务类型">
+              <el-select 
+                v-model="searchForm.业务" 
+                placeholder="请选择业务类型"
+                clearable
+                style="width: 100%"
+              >
+                <el-option label="清灰" value="清灰" />
+                <el-option label="重装系统" value="重装系统" />
+                <el-option label="硬件维修" value="硬件维修" />
+                <el-option label="软件安装" value="软件安装" />
+                <el-option label="病毒清理" value="病毒清理" />
+                <el-option label="数据恢复" value="数据恢复" />
+                <el-option label="其他" value="其他" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="年级学院">
+              <el-input 
+                v-model="searchForm.年级学院" 
+                placeholder="请输入年级学院"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="操作人员">
+              <el-input 
+                v-model="searchForm.操作人员" 
+                placeholder="请输入操作人员"
                 clearable
               />
             </el-form-item>
@@ -128,34 +180,31 @@ const formatDate = (dateString: string) => {
       <h3 class="results-title">搜索结果 ({{ searchResults.length }} 条)</h3>
       
       <el-table :data="searchResults" border stripe>
-        <el-table-column prop="id" label="ID" width="100" />
-        <el-table-column label="姓名" width="120">
+        <el-table-column prop="_id" label="工单ID" width="100">
           <template #default="scope">
-            {{ scope.row.basicInfo?.name || '未知' }}
+            <span class="id-text">{{ scope.row._id }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" width="200">
+        <el-table-column prop="日期" label="日期" width="100" />
+        <el-table-column prop="被诊者" label="被诊者" width="120" />
+        <el-table-column prop="年级学院" label="年级学院" width="120" />
+        <el-table-column prop="号码" label="联系号码" width="150" />
+        <el-table-column prop="电脑型号" label="电脑型号" width="180" />
+        <el-table-column prop="业务" label="业务类型" width="120" />
+        <el-table-column prop="操作人员" label="操作人员" width="120" />
+        <el-table-column prop="检察人员" label="检察人员" width="150" />
+        <el-table-column label="备注" min-width="200">
           <template #default="scope">
-            {{ scope.row.basicInfo?.email || '未知' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="电话" width="150">
-          <template #default="scope">
-            {{ scope.row.basicInfo?.phone || '未知' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="需求" min-width="200">
-          <template #default="scope">
-            <el-tooltip :content="scope.row.requirements" placement="top">
+            <el-tooltip :content="scope.row.备注 || '无'" placement="top">
               <span class="requirements-text">
-                {{ scope.row.requirements || '无' }}
+                {{ scope.row.备注 || '无' }}
               </span>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="提交时间" width="180">
+        <el-table-column label="创建时间" width="180">
           <template #default="scope">
-            {{ formatDate(scope.row.submittedAt) }}
+            {{ formatDate(scope.row.创建时间) }}
           </template>
         </el-table-column>
       </el-table>
@@ -171,7 +220,7 @@ const formatDate = (dateString: string) => {
 <style scoped>
 .function2-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -214,6 +263,12 @@ const formatDate = (dateString: string) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.id-text {
+  font-family: monospace;
+  font-size: 12px;
+  color: #666;
 }
 
 .no-results {

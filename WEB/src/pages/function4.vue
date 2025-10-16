@@ -6,18 +6,20 @@ import axios from 'axios'
 import API_CONFIG from '@/config/api.js'
 
 // 定义接口类型
-interface BasicInfo {
-  name: string
-  email: string
-  phone: string
-}
-
-interface SearchResult {
-  id: string
-  basicInfo: BasicInfo
-  requirements: string
-  submittedAt: string
-  updatedAt?: string
+interface OrderData {
+  _id: string
+  日期: string
+  年级学院: string
+  被诊者: string
+  联系: string
+  号码: string
+  电脑型号: string
+  业务: string
+  操作人员: string
+  检察人员: string
+  备注: string
+  创建时间?: string
+  更新时间?: string
 }
 
 // 响应式数据
@@ -25,7 +27,7 @@ const searchId = ref('')
 const isSearching = ref(false)
 const isDeleting = ref(false)
 const orderFound = ref(false)
-const orderData = ref<SearchResult | null>(null)
+const orderData = ref<OrderData | null>(null)
 
 // 搜索工单
 const searchOrder = async () => {
@@ -77,7 +79,7 @@ const deleteOrder = async () => {
 
   try {
     await ElMessageBox.confirm(
-      `确定要删除工单 "${orderData.value.id}" 吗？此操作不可恢复！`,
+      `确定要删除工单 "${orderData.value._id}" 吗？此操作不可恢复！`,
       '确认删除',
       {
         confirmButtonText: '确定删除',
@@ -93,7 +95,7 @@ const deleteOrder = async () => {
   isDeleting.value = true
 
   try {
-    const response = await axios.delete(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DELETE}/${orderData.value.id}`)
+    const response = await axios.delete(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DELETE}/${orderData.value._id}`)
 
     if (response.data.code === 200) {
       ElMessage.success('工单删除成功！')
@@ -155,7 +157,7 @@ const formatDate = (dateString: string) => {
   <div class="function4-container">
     <div class="page-header">
       <h1 class="page-title">删除工单</h1>
-      <p class="page-description">搜索并删除指定工单（此操作不可恢复）</p>
+      <p class="page-description">搜索并删除指定维修工单（此操作不可恢复）</p>
     </div>
 
     <!-- 搜索区域 -->
@@ -170,7 +172,7 @@ const formatDate = (dateString: string) => {
         <div class="search-form">
           <el-input
             v-model="searchId"
-            placeholder="请输入工单ID"
+            placeholder="请输入工单ID（MongoDB ObjectId）"
             class="search-input"
             :disabled="isSearching || isDeleting"
             @keyup="handleSearchKeyup"
@@ -218,40 +220,70 @@ const formatDate = (dateString: string) => {
             <div class="info-grid">
               <div class="info-item">
                 <label class="info-label">工单ID：</label>
-                <span class="info-value">{{ orderData.id }}</span>
+                <span class="info-value">{{ orderData._id }}</span>
               </div>
               <div class="info-item">
-                <label class="info-label">姓名：</label>
-                <span class="info-value">{{ orderData.basicInfo.name }}</span>
+                <label class="info-label">日期：</label>
+                <span class="info-value">{{ orderData.日期 || '未填写' }}</span>
               </div>
               <div class="info-item">
-                <label class="info-label">邮箱：</label>
-                <span class="info-value">{{ orderData.basicInfo.email }}</span>
+                <label class="info-label">年级学院：</label>
+                <span class="info-value">{{ orderData.年级学院 || '未填写' }}</span>
               </div>
               <div class="info-item">
-                <label class="info-label">电话：</label>
-                <span class="info-value">{{ orderData.basicInfo.phone }}</span>
+                <label class="info-label">被诊者：</label>
+                <span class="info-value">{{ orderData.被诊者 }}</span>
+              </div>
+              <div class="info-item">
+                <label class="info-label">联系方式：</label>
+                <span class="info-value">{{ orderData.联系 }}</span>
+              </div>
+              <div class="info-item">
+                <label class="info-label">联系号码：</label>
+                <span class="info-value">{{ orderData.号码 }}</span>
               </div>
             </div>
           </div>
           
           <div class="info-section">
-            <h3 class="section-title">需求信息</h3>
+            <h3 class="section-title">设备与业务信息</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label class="info-label">电脑型号：</label>
+                <span class="info-value">{{ orderData.电脑型号 }}</span>
+              </div>
+              <div class="info-item">
+                <label class="info-label">业务类型：</label>
+                <span class="info-value">{{ orderData.业务 }}</span>
+              </div>
+              <div class="info-item">
+                <label class="info-label">操作人员：</label>
+                <span class="info-value">{{ orderData.操作人员 || '未指定' }}</span>
+              </div>
+              <div class="info-item">
+                <label class="info-label">检察人员：</label>
+                <span class="info-value">{{ orderData.检察人员 || '未指定' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-section" v-if="orderData.备注">
+            <h3 class="section-title">备注信息</h3>
             <div class="requirements-content">
-              <p class="requirements-text">{{ orderData.requirements }}</p>
+              <p class="requirements-text">{{ orderData.备注 }}</p>
             </div>
           </div>
           
           <div class="info-section">
             <h3 class="section-title">时间信息</h3>
             <div class="info-grid">
-              <div class="info-item">
-                <label class="info-label">提交时间：</label>
-                <span class="info-value">{{ formatDate(orderData.submittedAt) }}</span>
+              <div class="info-item" v-if="orderData.创建时间">
+                <label class="info-label">创建时间：</label>
+                <span class="info-value">{{ formatDate(orderData.创建时间) }}</span>
               </div>
-              <div v-if="orderData.updatedAt" class="info-item">
+              <div v-if="orderData.更新时间" class="info-item">
                 <label class="info-label">更新时间：</label>
-                <span class="info-value">{{ formatDate(orderData.updatedAt) }}</span>
+                <span class="info-value">{{ formatDate(orderData.更新时间) }}</span>
               </div>
             </div>
           </div>
@@ -279,7 +311,7 @@ const formatDate = (dateString: string) => {
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!orderFound && searchId" class="empty-state">
+    <div v-if="!orderFound && !searchId" class="empty-state">
       <el-empty 
         description="请先搜索要删除的工单"
         :image-size="120"
@@ -468,7 +500,6 @@ const formatDate = (dateString: string) => {
   margin-top: 30px;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .function4-container {
     padding: 15px;
@@ -495,28 +526,6 @@ const formatDate = (dateString: string) => {
   .info-label {
     min-width: auto;
     margin-right: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .function4-container {
-    padding: 10px;
-  }
-  
-  .page-title {
-    font-size: 20px;
-  }
-  
-  .page-description {
-    font-size: 14px;
-  }
-  
-  .card-title {
-    font-size: 16px;
-  }
-  
-  .section-title {
-    font-size: 14px;
   }
 }
 </style>

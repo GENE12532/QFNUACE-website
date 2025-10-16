@@ -2,18 +2,40 @@
 <template>
   <div>
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">功能1 - 数据收集表单</h1>
-      <p class="text-lg text-gray-600">填写信息并生成JSON文件</p>
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">功能1 - 电脑维修工单创建</h1>
+      <p class="text-lg text-gray-600">填写电脑维修信息并提交工单</p>
     </div>
 
-    <div class="bg-white rounded-lg p-6 shadow-md max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg p-6 shadow-md max-w-4xl mx-auto">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- 基本信息 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
             <input
-                v-model="formData.name"
+                v-model="formData.日期"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="例：2025.3.5"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">年级学院</label>
+            <input
+                v-model="formData.年级学院"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="例：23网安"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">被诊者 *</label>
+            <input
+                v-model="formData.被诊者"
                 type="text"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -22,35 +44,89 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">邮箱 *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+            <select
+                v-model="formData.联系"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="电话">电话</option>
+              <option value="微信">微信</option>
+              <option value="QQ">QQ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">号码 *</label>
             <input
-                v-model="formData.email"
-                type="email"
+                v-model="formData.号码"
+                type="text"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="请输入邮箱"
+                placeholder="请输入联系号码"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">电脑型号 *</label>
+            <input
+                v-model="formData.电脑型号"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="例：戴尔g15_5530"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">业务 *</label>
+            <select
+                v-model="formData.业务"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">请选择业务类型</option>
+              <option value="清灰">清灰</option>
+              <option value="重装系统">重装系统</option>
+              <option value="硬件维修">硬件维修</option>
+              <option value="软件安装">软件安装</option>
+              <option value="病毒清理">病毒清理</option>
+              <option value="数据恢复">数据恢复</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">操作人员</label>
+            <input
+                v-model="formData.操作人员"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="请输入操作人员姓名"
             >
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">电话</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">检察人员</label>
           <input
-              v-model="formData.phone"
-              type="tel"
+              v-model="formData.检察人员"
+              type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="请输入电话号码"
+              placeholder="例：张长宇、刘沛"
           >
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">需求描述 *</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
           <textarea
-              v-model="formData.requirements"
-              required
+              v-model="formData.备注"
               rows="4"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="请详细描述您的需求..."
+              placeholder="请输入备注信息..."
           ></textarea>
         </div>
 
@@ -60,7 +136,7 @@
               :disabled="isSubmitting"
               class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {{ isSubmitting ? '处理中...' : '生成并发送JSON文件' }}
+            {{ isSubmitting ? '提交中...' : '提交工单' }}
           </button>
         </div>
       </form>
@@ -79,18 +155,30 @@ import API_CONFIG from '@/config/api';
 
 // 定义接口
 interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  requirements: string;
+  日期: string;
+  年级学院: string;
+  被诊者: string;
+  联系: string;
+  号码: string;
+  电脑型号: string;
+  业务: string;
+  操作人员: string;
+  检察人员: string;
+  备注: string;
 }
 
 // 表单数据
 const formData = reactive<FormData>({
-  name: '',
-  email: '',
-  phone: '',
-  requirements: ''
+  日期: new Date().toLocaleDateString('zh-CN').replace(/\//g, '.'),
+  年级学院: '',
+  被诊者: '',
+  联系: '电话',
+  号码: '',
+  电脑型号: '',
+  业务: '',
+  操作人员: '',
+  检察人员: '',
+  备注: ''
 });
 
 // 状态管理
@@ -98,23 +186,10 @@ const isSubmitting = ref(false);
 const message = ref('');
 const messageType = ref<'success' | 'error'>('success');
 
-// 生成最终的数据结构
-const generateFinalData = () => {
-  return {
-    basicInfo: {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone
-    },
-    requirements: formData.requirements,
-    submittedAt: new Date().toISOString()
-  };
-};
-
 // 发送到服务器
 const sendToServer = async (data: any): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await axios.post(API_CONFIG.ENDPOINTS.CREATE, data, {
+    const response = await axios.post(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CREATE}`, data, {
       headers: {
         'Content-Type': 'application/json'
       },
@@ -124,7 +199,7 @@ const sendToServer = async (data: any): Promise<{ success: boolean; message: str
     console.log('数据已保存到服务器:', response.data);
     return {
       success: response.status === 201,
-      message: response.data?.message || '数据已成功保存到服务器'
+      message: response.data?.message || '工单已成功提交'
     };
   } catch (error: any) {
     console.error('发送到服务器失败:', error);
@@ -152,22 +227,26 @@ const handleSubmit = async () => {
     isSubmitting.value = true;
     message.value = '';
 
-    // 生成最终数据
-    const finalData = generateFinalData();
-
     // 发送到服务器并获取结果
-    const result = await sendToServer(finalData);
+    const result = await sendToServer(formData);
 
     if (result.success) {
       message.value = result.message;
       messageType.value = 'success';
 
-      // 清空表单
+      // 清空表单（保留日期）
+      const currentDate = formData.日期;
       Object.assign(formData, {
-        name: '',
-        email: '',
-        phone: '',
-        requirements: ''
+        日期: currentDate,
+        年级学院: '',
+        被诊者: '',
+        联系: '电话',
+        号码: '',
+        电脑型号: '',
+        业务: '',
+        操作人员: '',
+        检察人员: '',
+        备注: ''
       });
     } else {
       message.value = result.message;

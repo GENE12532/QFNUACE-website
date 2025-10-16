@@ -1,3 +1,5 @@
+const { ObjectId } = require('mongodb');
+
 module.exports = (app, collection) => {
     const delete_fun = async (req, res) => {
         try {
@@ -11,9 +13,9 @@ module.exports = (app, collection) => {
                 });
             }
             
-            // 2. 执行数据库操作：deleteOne()（使用简单的字符串ID匹配）
+            // 2. 执行数据库操作：deleteOne()（使用MongoDB ObjectId）
             const result = await collection.deleteOne({
-                id: id
+                _id: new ObjectId(id)
             });
 
             // 3. 检查删除结果
@@ -38,5 +40,5 @@ module.exports = (app, collection) => {
         }
     }
 
-    app.delete("/api/orders/:id", delete_fun);
+    app.delete("/orders/:id", delete_fun);
 }

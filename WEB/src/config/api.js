@@ -9,7 +9,7 @@ const API_CONFIG = {
   // API端点
   ENDPOINTS: {
     CREATE: '/create',
-    SEARCH: '/search',
+    SEARCH: '/orders',  // 修正：搜索使用 /orders 端点
     UPDATE: '/orders',  // PATCH /api/orders/:id
     DELETE: '/orders',  // DELETE /api/orders/:id
     GET_BY_ID: '/orders', // GET /api/orders/:id

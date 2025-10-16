@@ -6,26 +6,20 @@ import axios from 'axios'
 import API_CONFIG from '@/config/api'
 
 // 定义接口类型
-interface BasicInfo {
-  name: string
-  email: string
-  phone: string
-}
-
 interface OrderData {
-  id: string
-  basicInfo: BasicInfo
-  requirements: string
-  submittedAt?: string
-  updatedAt?: string
-}
-
-interface SearchResult {
-  id: string
-  basicInfo: BasicInfo
-  requirements: string
-  submittedAt: string
-  updatedAt?: string
+  _id: string
+  日期: string
+  年级学院: string
+  被诊者: string
+  联系: string
+  号码: string
+  电脑型号: string
+  业务: string
+  操作人员: string
+  检察人员: string
+  备注: string
+  创建时间?: string
+  更新时间?: string
 }
 
 // 响应式数据
@@ -37,34 +31,18 @@ const currentOrder = ref<OrderData | null>(null)
 
 // 表单数据
 const formData = reactive<OrderData>({
-  id: '',
-  basicInfo: {
-    name: '',
-    email: '',
-    phone: ''
-  },
-  requirements: ''
+  _id: '',
+  日期: '',
+  年级学院: '',
+  被诊者: '',
+  联系: '电话',
+  号码: '',
+  电脑型号: '',
+  业务: '',
+  操作人员: '',
+  检察人员: '',
+  备注: ''
 })
-
-// 表单验证规则
-const rules = {
-  'basicInfo.name': [
-    { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 50, message: '姓名长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  'basicInfo.email': [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
-  ],
-  'basicInfo.phone': [
-    { required: true, message: '请输入电话号码', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
-  ],
-  requirements: [
-    { required: true, message: '请输入需求描述', trigger: 'blur' },
-    { min: 10, max: 1000, message: '需求描述长度在 10 到 1000 个字符', trigger: 'blur' }
-  ]
-}
 
 // 搜索工单
 const searchOrder = async () => {
@@ -80,14 +58,20 @@ const searchOrder = async () => {
     const response = await axios.get(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_ORDER}/${searchId.value.trim()}`)
     
     if (response.data.code === 200 && response.data.data) {
-      const orderData: SearchResult = response.data.data
+      const orderData: OrderData = response.data.data
       
       // 填充表单数据
-      formData.id = orderData.id
-      formData.basicInfo.name = orderData.basicInfo.name
-      formData.basicInfo.email = orderData.basicInfo.email
-      formData.basicInfo.phone = orderData.basicInfo.phone
-      formData.requirements = orderData.requirements
+      formData._id = orderData._id
+      formData.日期 = orderData.日期
+      formData.年级学院 = orderData.年级学院
+      formData.被诊者 = orderData.被诊者
+      formData.联系 = orderData.联系
+      formData.号码 = orderData.号码
+      formData.电脑型号 = orderData.电脑型号
+      formData.业务 = orderData.业务
+      formData.操作人员 = orderData.操作人员
+      formData.检察人员 = orderData.检察人员
+      formData.备注 = orderData.备注
       
       currentOrder.value = { ...formData }
       orderFound.value = true
@@ -119,49 +103,21 @@ const searchOrder = async () => {
 // 更新工单
 const updateOrder = async () => {
   // 验证必填字段
-  if (!formData.basicInfo.name.trim()) {
-    ElMessage.warning('请输入姓名')
+  if (!formData.被诊者.trim()) {
+    ElMessage.warning('请输入被诊者姓名')
     return
   }
-  if (!formData.basicInfo.email.trim()) {
-    ElMessage.warning('请输入邮箱地址')
+  if (!formData.号码.trim()) {
+    ElMessage.warning('请输入联系号码')
     return
   }
-  if (!formData.basicInfo.phone.trim()) {
-    ElMessage.warning('请输入电话号码')
+  if (!formData.电脑型号.trim()) {
+    ElMessage.warning('请输入电脑型号')
     return
   }
-  if (!formData.requirements.trim()) {
-    ElMessage.warning('请输入需求描述')
+  if (!formData.业务.trim()) {
+    ElMessage.warning('请选择业务类型')
     return
-  }
-
-  // 邮箱格式验证
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(formData.basicInfo.email)) {
-    ElMessage.warning('请输入正确的邮箱格式')
-    return
-  }
-
-  // 手机号格式验证
-  const phoneRegex = /^1[3-9]\d{9}$/
-  if (!phoneRegex.test(formData.basicInfo.phone)) {
-    ElMessage.warning('请输入正确的手机号码')
-    return
-  }
-
-  // 检查是否有修改
-  if (currentOrder.value) {
-    const hasChanges = 
-      formData.basicInfo.name !== currentOrder.value.basicInfo.name ||
-      formData.basicInfo.email !== currentOrder.value.basicInfo.email ||
-      formData.basicInfo.phone !== currentOrder.value.basicInfo.phone ||
-      formData.requirements !== currentOrder.value.requirements
-
-    if (!hasChanges) {
-      ElMessage.info('没有检测到任何修改')
-      return
-    }
   }
 
   try {
@@ -182,16 +138,20 @@ const updateOrder = async () => {
 
   try {
     const updateData = {
-      basicInfo: {
-        name: formData.basicInfo.name.trim(),
-        email: formData.basicInfo.email.trim(),
-        phone: formData.basicInfo.phone.trim()
-      },
-      requirements: formData.requirements.trim()
+      日期: formData.日期.trim(),
+      年级学院: formData.年级学院.trim(),
+      被诊者: formData.被诊者.trim(),
+      联系: formData.联系,
+      号码: formData.号码.trim(),
+      电脑型号: formData.电脑型号.trim(),
+      业务: formData.业务,
+      操作人员: formData.操作人员.trim(),
+      检察人员: formData.检察人员.trim(),
+      备注: formData.备注.trim()
     }
 
     const response = await axios.patch(
-      `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.UPDATE_ORDER}/${formData.id}`,
+      `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.UPDATE_ORDER}/${formData._id}`,
       updateData,
       {
         headers: {
@@ -202,14 +162,7 @@ const updateOrder = async () => {
 
     if (response.data.code === 200) {
       ElMessage.success('工单更新成功！')
-      
-      // 更新当前工单数据
       currentOrder.value = { ...formData }
-      
-      // 可选：重新搜索以获取最新数据
-      setTimeout(() => {
-        searchOrder()
-      }, 1000)
     } else {
       ElMessage.error(`更新失败: ${response.data.message || '未知错误'}`)
     }
@@ -219,8 +172,6 @@ const updateOrder = async () => {
     if (error.response?.status === 404) {
       ElMessage.error('工单不存在，可能已被删除')
       resetForm()
-    } else if (error.response?.status === 400) {
-      ElMessage.error(`请求参数错误: ${error.response.data?.message || ''}`)
     } else if (error.code === 'ECONNREFUSED') {
       ElMessage.error('无法连接到服务器，请检查网络连接')
     } else {
@@ -233,11 +184,17 @@ const updateOrder = async () => {
 
 // 重置表单
 const resetForm = () => {
-  formData.id = ''
-  formData.basicInfo.name = ''
-  formData.basicInfo.email = ''
-  formData.basicInfo.phone = ''
-  formData.requirements = ''
+  formData._id = ''
+  formData.日期 = ''
+  formData.年级学院 = ''
+  formData.被诊者 = ''
+  formData.联系 = '电话'
+  formData.号码 = ''
+  formData.电脑型号 = ''
+  formData.业务 = ''
+  formData.操作人员 = ''
+  formData.检察人员 = ''
+  formData.备注 = ''
   currentOrder.value = null
   orderFound.value = false
 }
@@ -260,7 +217,7 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
   <div class="function3-container">
     <div class="page-header">
       <h1 class="page-title">更新工单</h1>
-      <p class="page-description">搜索并更新现有工单信息</p>
+      <p class="page-description">搜索并更新现有维修工单信息</p>
     </div>
 
     <!-- 搜索区域 -->
@@ -275,7 +232,7 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
         <div class="search-form">
           <el-input
             v-model="searchId"
-            placeholder="请输入工单ID"
+            placeholder="请输入工单ID（MongoDB ObjectId）"
             class="search-input"
             :disabled="isSearching"
             @keyup="handleSearchKeyup"
@@ -310,78 +267,88 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
       <el-card class="edit-card">
         <template #header>
           <div class="card-header">
-            <span class="card-title">编辑工单 - {{ formData.id }}</span>
+            <span class="card-title">编辑工单</span>
           </div>
         </template>
         
-        <el-form 
-          :model="formData" 
-          :rules="rules" 
-          label-width="120px"
-          class="edit-form"
-        >
-          <div class="form-section">
-            <h3 class="section-title">基本信息</h3>
-            
-            <el-form-item label="姓名" prop="basicInfo.name">
-              <el-input
-                v-model="formData.basicInfo.name"
-                placeholder="请输入姓名"
-                :disabled="isUpdating"
-                clearable
-              />
-            </el-form-item>
-            
-            <el-form-item label="邮箱" prop="basicInfo.email">
-              <el-input
-                v-model="formData.basicInfo.email"
-                placeholder="请输入邮箱地址"
-                :disabled="isUpdating"
-                clearable
-              />
-            </el-form-item>
-            
-            <el-form-item label="电话" prop="basicInfo.phone">
-              <el-input
-                v-model="formData.basicInfo.phone"
-                placeholder="请输入电话号码"
-                :disabled="isUpdating"
-                clearable
-              />
-            </el-form-item>
-          </div>
+        <el-form :model="formData" label-width="120px" class="edit-form">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="日期">
+                <el-input v-model="formData.日期" placeholder="例：2025.3.5" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="年级学院">
+                <el-input v-model="formData.年级学院" placeholder="例：23网安" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+          </el-row>
           
-          <div class="form-section">
-            <h3 class="section-title">需求信息</h3>
-            
-            <el-form-item label="需求描述" prop="requirements">
-              <el-input
-                v-model="formData.requirements"
-                type="textarea"
-                :rows="6"
-                placeholder="请详细描述您的需求..."
-                :disabled="isUpdating"
-                show-word-limit
-                maxlength="1000"
-              />
-            </el-form-item>
-          </div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="被诊者" required>
+                <el-input v-model="formData.被诊者" placeholder="请输入被诊者姓名" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="联系方式">
+                <el-select v-model="formData.联系" :disabled="isUpdating" style="width: 100%">
+                  <el-option label="电话" value="电话" />
+                  <el-option label="微信" value="微信" />
+                  <el-option label="QQ" value="QQ" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="联系号码" required>
+                <el-input v-model="formData.号码" placeholder="请输入联系号码" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="电脑型号" required>
+                <el-input v-model="formData.电脑型号" placeholder="例：戴尔g15_5530" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="业务类型" required>
+                <el-select v-model="formData.业务" placeholder="请选择业务类型" :disabled="isUpdating" style="width: 100%">
+                  <el-option label="清灰" value="清灰" />
+                  <el-option label="重装系统" value="重装系统" />
+                  <el-option label="硬件维修" value="硬件维修" />
+                  <el-option label="软件安装" value="软件安装" />
+                  <el-option label="病毒清理" value="病毒清理" />
+                  <el-option label="数据恢复" value="数据恢复" />
+                  <el-option label="其他" value="其他" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="操作人员">
+                <el-input v-model="formData.操作人员" placeholder="请输入操作人员姓名" :disabled="isUpdating" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-form-item label="检察人员">
+            <el-input v-model="formData.检察人员" placeholder="例：张长宇、刘沛" :disabled="isUpdating" />
+          </el-form-item>
+          
+          <el-form-item label="备注">
+            <el-input v-model="formData.备注" type="textarea" :rows="4" placeholder="请输入备注信息..." :disabled="isUpdating" />
+          </el-form-item>
           
           <div class="form-actions">
-            <el-button
-              type="primary"
-              @click="updateOrder"
-              :loading="isUpdating"
-              size="large"
-            >
+            <el-button type="primary" @click="updateOrder" :loading="isUpdating" size="large">
               ✏️ {{ isUpdating ? '更新中...' : '更新工单' }}
             </el-button>
-            
-            <el-button
-              @click="resetForm"
-              :disabled="isUpdating"
-              size="large"
-            >
+            <el-button @click="resetForm" :disabled="isUpdating" size="large">
               🔄 重置表单
             </el-button>
           </div>
@@ -390,11 +357,8 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!orderFound && searchId" class="empty-state">
-      <el-empty 
-        description="请先搜索要更新的工单"
-        :image-size="120"
-      >
+    <div v-if="!orderFound && !searchId" class="empty-state">
+      <el-empty description="请先搜索要更新的工单" :image-size="120">
         <template #image>
           <div style="font-size: 120px; color: #909399;">🔍</div>
         </template>
@@ -473,22 +437,6 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
   padding: 20px 0;
 }
 
-.form-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #fafafa;
-  border-radius: 6px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 20px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #409eff;
-}
-
 .form-actions {
   display: flex;
   gap: 12px;
@@ -502,7 +450,6 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
   padding: 60px 20px;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .function3-container {
     padding: 15px;
@@ -523,19 +470,5 @@ const handleSearchKeyup = (event: KeyboardEvent) => {
   .form-actions .el-button {
     width: 100%;
   }
-}
-
-/* 加载状态样式 */
-.el-button.is-loading {
-  pointer-events: none;
-}
-
-/* 表单验证错误样式 */
-.el-form-item.is-error .el-input__inner {
-  border-color: #f56c6c;
-}
-
-.el-form-item.is-error .el-textarea__inner {
-  border-color: #f56c6c;
 }
 </style>

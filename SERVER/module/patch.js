@@ -14,13 +14,13 @@ module.exports = (app, collection) => {
                 });
             }
 
-            // 查找并更新记录（使用简单的字符串ID匹配）
+            // 查找并更新记录（使用MongoDB ObjectId）
             const result = await collection.updateOne(
-                { id: id },
+                { _id: new ObjectId(id) },
                 {
                     $set: {
                         ...updateData,
-                        updatedAt: new Date()
+                        更新时间: new Date()
                     }
                 }
             );
@@ -48,5 +48,5 @@ module.exports = (app, collection) => {
         }
     }
 
-    app.patch("/api/orders/:id", patch_fun)
+    app.patch("/orders/:id", patch_fun)
 }

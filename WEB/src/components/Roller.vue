@@ -2,15 +2,101 @@
 import { ref } from 'vue';
 
 const list = ref([
-  { id: 1, name: "功能1", icon: "🚀", description: "功能1的详细描述信息", href: "function1" },
-  { id: 2, name: "功能2", icon: "🎯", description: "功能2的详细描述信息", href: "function2" },
-  { id: 3, name: "功能3", icon: "🔧", description: "功能3的详细描述信息", href: "function3" },
-  { id: 4, name: "功能4", icon: "📊", description: "功能4的详细描述信息", href: "function4" },
+  { id: 1, name: "创建工单", icon: "📝", description: "创建新的电脑维修工单，填写详细的维修信息", href: "function1" },
+  { id: 2, name: "查询工单", icon: "🔍", description: "根据条件搜索和查看现有的维修工单", href: "function2" },
+  { id: 3, name: "更新工单", icon: "✏️", description: "修改和更新现有工单的信息", href: "function3" },
+  { id: 4, name: "删除工单", icon: "🗑️", description: "删除不需要的工单（此操作不可恢复）", href: "function4" },
 ]);
+
+// 操作指南数据
+const guideSteps = ref([
+  {
+    step: 1,
+    title: "启动服务器",
+    description: "首先需要启动后端服务器",
+    commands: [
+      "cd QFNUACE-website/SERVER",
+      "npm install",
+      "npm start"
+    ],
+    note: "确保MongoDB数据库正在运行"
+  },
+  {
+    step: 2,
+    title: "启动前端",
+    description: "在新的终端窗口中启动前端应用",
+    commands: [
+      "cd QFNUACE-website/WEB",
+      "npm install",
+      "npm run dev"
+    ],
+    note: "前端将在 http://localhost:5173 运行"
+  },
+  {
+    step: 3,
+    title: "使用功能",
+    description: "现在可以使用各项功能了",
+    commands: [],
+    note: "点击上方的功能卡片开始使用"
+  }
+]);
+
+const showGuide = ref(false);
+
+const toggleGuide = () => {
+  showGuide.value = !showGuide.value;
+};
 </script>
 
 <template>
   <div class="h-full p-6 overflow-y-auto" style="background-color: rgba(239, 68, 68, 0.3);">
+    <!-- 操作指南按钮 -->
+    <div class="mb-6">
+      <button
+        @click="toggleGuide"
+        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+      >
+        <span>📖</span>
+        {{ showGuide ? '隐藏操作指南' : '显示操作指南' }}
+      </button>
+    </div>
+
+    <!-- 操作指南内容 -->
+    <div v-if="showGuide" class="mb-6 bg-white rounded-xl shadow-md p-6" style="background-color: rgba(255, 255, 255, 0.95);">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <span>📋</span>
+        操作指南
+      </h2>
+      
+      <div class="space-y-4">
+        <div v-for="guide in guideSteps" :key="guide.step" class="border-l-4 border-blue-500 pl-4">
+          <h3 class="font-semibold text-gray-800 mb-2">
+            步骤 {{ guide.step }}: {{ guide.title }}
+          </h3>
+          <p class="text-gray-600 text-sm mb-2">{{ guide.description }}</p>
+          
+          <div v-if="guide.commands.length > 0" class="bg-gray-100 rounded p-3 mb-2">
+            <div v-for="command in guide.commands" :key="command" class="font-mono text-sm text-gray-800 mb-1">
+              <span class="text-green-600">$</span> {{ command }}
+            </div>
+          </div>
+          
+          <p class="text-blue-600 text-sm font-medium">💡 {{ guide.note }}</p>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h4 class="font-semibold text-yellow-800 mb-2">⚠️ 重要提醒</h4>
+        <ul class="text-yellow-700 text-sm space-y-1">
+          <li>• 确保MongoDB数据库服务正在运行</li>
+          <li>• 后端服务器默认运行在端口3000</li>
+          <li>• 前端应用默认运行在端口5173</li>
+          <li>• 如遇网络错误，请检查服务器连接状态</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 功能卡片 -->
     <div class="space-y-6">
       <router-link
           v-for="item in list"

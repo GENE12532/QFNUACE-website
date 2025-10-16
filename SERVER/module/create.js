@@ -3,28 +3,27 @@ module.exports = (app,collection) => {
         try{
             const newOrderData = req.body;
 
-            if(!newOrderData || !newOrderData.basicInfo || !newOrderData.requirements){
+            // 验证必填字段
+            if(!newOrderData || !newOrderData.被诊者 || !newOrderData.号码 || !newOrderData.电脑型号 || !newOrderData.业务){
                 return res.status(400).json({
                     code:400,
-                    message:"请求数据不完整，缺少基本信息或需求描述"
-                });
-            }
-
-            // 验证基本信息的完整性
-            if(!newOrderData.basicInfo.name || !newOrderData.basicInfo.email || !newOrderData.basicInfo.phone){
-                return res.status(400).json({
-                    code:400,
-                    message:"基本信息不完整，请填写姓名、邮箱和电话"
+                    message:"请求数据不完整，缺少必填信息"
                 });
             }
 
             const orderToInsert = {
-                id: require('crypto').randomBytes(2).toString('hex'), // 生成简短ID
-                basicInfo: newOrderData.basicInfo,
-                requirements: newOrderData.requirements,
-                submittedAt: new Date(),
-                status: "待处理",
-                isDeleted: false
+                日期: newOrderData.日期 || new Date().toLocaleDateString('zh-CN'),
+                年级学院: newOrderData.年级学院 || '',
+                被诊者: newOrderData.被诊者,
+                联系: newOrderData.联系 || '电话',
+                号码: newOrderData.号码,
+                电脑型号: newOrderData.电脑型号,
+                业务: newOrderData.业务,
+                操作人员: newOrderData.操作人员 || '',
+                检察人员: newOrderData.检察人员 || '',
+                备注: newOrderData.备注 || '',
+                创建时间: new Date(),
+                状态: "待处理"
             };
 
             const result = await collection.insertOne(orderToInsert);
@@ -47,5 +46,5 @@ module.exports = (app,collection) => {
         }
     }
 
-    app.post("/api/create", create_fun)
+    app.post("/create", create_fun)
 }
