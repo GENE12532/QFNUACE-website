@@ -1,0 +1,37 @@
+{
+  "name": "qfnuace-website",
+  "version": "1.0.0",
+  "description": "电脑维修工单管理系统 - 支持一键部署",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && cd SERVER && npm install && cd ../WEB && npm install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "cd SERVER && npm run dev",
+    "dev:web": "cd WEB && npm run dev",
+    "start": "concurrently \"npm run start:server\" \"npm run start:web\"",
+    "start:server": "cd SERVER && npm start",
+    "start:web": "cd WEB && npm run dev",
+    "build": "cd WEB && npm run build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "setup": "npm run install-all && npm run init-db"
+  },
+  "keywords": [
+    "vue",
+    "nodejs",
+    "mongodb",
+    "computer-repair",
+    "work-order"
+  ],
+  "author": "QFNU ACE Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

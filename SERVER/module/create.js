@@ -5,6 +5,9 @@
  * 作者：学习后端开发
  */
 
+// 导入配置文件
+const { APP_CONFIG } = require("../config")
+
 /**
  * 导出创建工单功能模块
  * @param {Express.Router} app - Express路由器对象
@@ -24,29 +27,66 @@ module.exports = (app,collection) => {
 
             // ==================== 2. 数据验证 ====================
             // 验证必填字段是否存在，确保数据完整性
-            if(!newOrderData || !newOrderData.被诊者 || !newOrderData.号码 || !newOrderData.电脑型号 || !newOrderData.业务){
+            const missingFields = APP_CONFIG.ORDER_FIELDS.REQUIRED_FIELDS.filter(
+                field => !newOrderData || !newOrderData[field]
+            );
+            
+            if (missingFields.length > 0) {
                 return res.status(400).json({
                     code:400,
-                    message:"请求数据不完整，缺少必填信息"
+                    message:`请求数据不完整，缺少必填信息: ${missingFields.join(', ')}`
                 });
             }
 
             // ==================== 3. 构造数据库文档 ====================
-            // 创建要插入数据库的工单对象，包含默认值处理
-            const orderToInsert = {
-                日期: newOrderData.日期 || new Date().toLocaleDateString('zh-CN'),  // 如果没有提供日期，使用当前日期
-                年级学院: newOrderData.年级学院 || '',                              // 可选字段，默认为空字符串
-                被诊者: newOrderData.被诊者,                                       // 必填：需要服务的人员姓名
-                联系: newOrderData.联系 || '电话',                                 // 联系方式，默认为"电话"
-                号码: newOrderData.号码,                                           // 必填：联系电话号码
-                电脑型号: newOrderData.电脑型号,                                   // 必填：需要维修的电脑型号
-                业务: newOrderData.业务,                                           // 必填：具体的服务类型
-                操作人员: newOrderData.操作人员 || '',                             // 可选：负责处理的技术人员
-                检察人员: newOrderData.检察人员 || '',                             // 可选：质检人员
-                备注: newOrderData.备注 || '',                                     // 可选：额外说明信息
-                创建时间: new Date(),                                              // 系统自动生成的创建时间戳
-                状态: "待处理"                                                     // 新工单默认状态为"待处理"
-            };
+            // 使用配置化的工单结构动态构建数据库文档
+            const orderToInsert = {};
+            
+            // 处理普通字段
+            APP_CONFIG.ORDER_SCHEMA.FIELDS.forEach(field => {
+                const fieldName = field.name;
+                
+                // 必填字段验证
+                if (field.required && (!newOrderData[fieldName] || newOrderData[fieldName].trim() === '')) {
+                    throw new Error(`必填字段缺失: ${fieldName}`);
+                }
+                
+                // 设置字段值
+                if (newOrderData[fieldName] !== undefined && newOrderData[fieldName] !== null) {
+                    // 使用请求数据
+                    orderToInsert[fieldName] = newOrderData[fieldName];
+                } else if (field.defaultValue !== undefined) {
+                    // 使用默认值
+                    if (field.defaultValue === 'current_date') {
+                        // 当前日期
+                        orderToInsert[fieldName] = new Date().toLocaleDateString(APP_CONFIG.DATE_FORMAT.LOCALE, APP_CONFIG.DATE_FORMAT.OPTIONS);
+                    } else if (typeof field.defaultValue === 'string' && field.defaultValue.startsWith('DEFAULT_')) {
+                        // 引用其他配置项
+                        const configKey = field.defaultValue;
+                        orderToInsert[fieldName] = APP_CONFIG[configKey];
+                    } else {
+                        // 普通默认值
+                        orderToInsert[fieldName] = field.defaultValue;
+                    }
+                }
+            });
+            
+            // 处理系统字段
+            APP_CONFIG.ORDER_SCHEMA.SYSTEM_FIELDS.forEach(field => {
+                const fieldName = field.name;
+                
+                if (field.defaultValue === 'current_timestamp') {
+                    // 当前时间戳
+                    orderToInsert[fieldName] = new Date();
+                } else if (typeof field.defaultValue === 'string' && field.defaultValue.startsWith('DEFAULT_')) {
+                    // 引用其他配置项
+                    const configKey = field.defaultValue;
+                    orderToInsert[fieldName] = APP_CONFIG[configKey];
+                } else {
+                    // 普通默认值
+                    orderToInsert[fieldName] = field.defaultValue;
+                }
+            });
 
             // ==================== 4. 数据库操作 ====================
             // 将新工单插入到MongoDB集合中

@@ -96,43 +96,38 @@ QFNUACE-website/
 ## 🚀 快速开始
 
 ### 环境要求
-
 - Node.js >= 16.0.0
 - MongoDB >= 4.0
 - npm >= 8.0.0
+- 或 Docker & Docker Compose（推荐）
 
-### 安装步骤
+### 启动方式
 
-1. **克隆项目**
-   ```bash
-   git clone <repository-url>
-   cd QFNUACE-website
-   ```
+#### 方式一：npm 命令（最简单）
+```bash
+# 安装所有依赖
+npm run install-all
 
-2. **启动MongoDB数据库**
-   ```bash
-   # 确保MongoDB服务正在运行
-   mongod
-   ```
+# 启动开发服务器
+npm run dev
+```
 
-3. **安装并启动后端服务**
-   ```bash
-   cd SERVER
-   npm install
-   npm start
-   ```
-   后端服务将在 `http://localhost:3000` 启动
+#### 方式二：Docker 部署（推荐）
+```bash
+# 一键启动所有服务（包括MongoDB）
+npm run docker:up
+```
 
-4. **安装并启动前端应用**
-   ```bash
-   cd ../WEB
-   npm install
-   npm run dev
-   ```
-   前端应用将在 `http://localhost:5173` 启动
+#### 方式三：启动脚本
+- **Windows**: 运行 `start.bat`
+- **Linux/macOS**: 运行 `./start.sh`
 
-5. **访问应用**
-   打开浏览器访问 `http://localhost:5173`
+### 访问地址
+- 前端应用: http://localhost:5173
+- 后端API: http://localhost:3000
+
+### 环境配置
+复制 `.env.example` 为 `.env` 并根据需要修改配置。
 
 ## 📖 功能说明
 

@@ -7,10 +7,13 @@
 // 从mongodb包中导入MongoClient类，用于连接MongoDB数据库
 const {MongoClient} = require("mongodb")
 
-// 数据库连接配置
-const URL = "mongodb://localhost:27017";  // MongoDB数据库地址，localhost表示本地，27017是默认端口
-const DB_NAME = "Work_order";             // 数据库名称，存储工单相关数据
-const COLLECTION_NAME = "order";          // 集合名称，类似于关系型数据库中的表
+// 导入配置文件
+const { DATABASE_CONFIG } = require("./config")
+
+// 数据库连接配置（从配置文件读取）
+const URL = DATABASE_CONFIG.URL;          // MongoDB数据库地址
+const DB_NAME = DATABASE_CONFIG.DB_NAME;  // 数据库名称，存储工单相关数据
+const COLLECTION_NAME = DATABASE_CONFIG.COLLECTION_NAME; // 集合名称，类似于关系型数据库中的表
 
 /**
  * 连接数据库的异步函数

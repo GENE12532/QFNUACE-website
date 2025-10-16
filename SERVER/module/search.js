@@ -5,6 +5,9 @@
  * 作者：学习后端开发
  */
 
+// 导入配置文件
+const { APP_CONFIG } = require("../config")
+
 /**
  * 导出查询工单功能模块
  * @param {Express.Router} app - Express路由器对象
@@ -26,35 +29,12 @@ module.exports = (app, collection) => {
             // ==================== 2. 处理各种搜索字段 ====================
             // 使用正则表达式实现模糊搜索，$options: 'i' 表示忽略大小写
             
-            // 按被诊者姓名搜索
-            if (req.query.被诊者) {
-                query.被诊者 = { $regex: req.query.被诊者, $options: 'i' };
-            }
-            
-            // 按联系号码搜索
-            if (req.query.号码) {
-                query.号码 = { $regex: req.query.号码, $options: 'i' };
-            }
-            
-            // 按电脑型号搜索
-            if (req.query.电脑型号) {
-                query.电脑型号 = { $regex: req.query.电脑型号, $options: 'i' };
-            }
-            
-            // 按业务类型搜索
-            if (req.query.业务) {
-                query.业务 = { $regex: req.query.业务, $options: 'i' };
-            }
-            
-            // 按年级学院搜索
-            if (req.query.年级学院) {
-                query.年级学院 = { $regex: req.query.年级学院, $options: 'i' };
-            }
-            
-            // 按操作人员搜索
-            if (req.query.操作人员) {
-                query.操作人员 = { $regex: req.query.操作人员, $options: 'i' };
-            }
+            // 动态处理所有配置的搜索字段
+            APP_CONFIG.SEARCH_FIELDS.forEach(field => {
+                if (req.query[field]) {
+                    query[field] = { $regex: req.query[field], $options: 'i' };
+                }
+            });
 
             // 打印查询条件，便于调试
             console.log('查询条件:', query);

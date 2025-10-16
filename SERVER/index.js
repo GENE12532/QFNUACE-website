@@ -9,6 +9,9 @@
 const express = require("express")  // Express.js框架，用于构建Web服务器
 const cors = require("cors")         // CORS中间件，解决跨域问题
 
+// 导入配置文件
+const { SERVER_CONFIG, APP_CONFIG } = require("./config")
+
 // 导入各个功能模块（CRUD操作）
 const create_fun = require("./module/create");  // 创建工单功能
 const search_fun = require("./module/search");  // 查询工单功能
@@ -18,7 +21,7 @@ const connectDB = require("./back")              // 数据库连接模块
 
 // ==================== 服务器配置 ====================
 const app = express()    // 创建Express应用实例
-const PORT = 3000;       // 服务器监听端口号
+const PORT = SERVER_CONFIG.PORT; // 服务器监听端口号（从配置文件读取）
 
 // ==================== 中间件配置 ====================
 
@@ -26,12 +29,7 @@ const PORT = 3000;       // 服务器监听端口号
  * CORS跨域配置中间件
  * 作用：允许前端应用访问后端API，解决浏览器同源策略限制
  */
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // 允许的前端地址（Vite开发服务器默认端口）
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],         // 允许的HTTP方法
-    allowedHeaders: ['Content-Type', 'Authorization'],          // 允许的请求头
-    credentials: true                                            // 允许携带凭证（如cookies）
-}));
+app.use(cors(SERVER_CONFIG.CORS));
 
 /**
  * JSON解析中间件
@@ -46,6 +44,21 @@ app.use(express.json());
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next(); // 调用next()继续执行下一个中间件
+});
+
+// ==================== 健康检查路由 ====================
+
+/**
+ * 健康检查接口
+ * 用于Docker容器健康检查和监控
+ */
+app.get(`${APP_CONFIG.API_PREFIX}/health`, (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'computer-repair-api',
+    version: '1.0.0'
+  });
 });
 
 // ==================== 服务器启动函数 ====================
@@ -70,9 +83,9 @@ async function startServer(){
         delete_fun(apiRouter,collection);  // 注册删除工单的路由
         patch_fun(apiRouter,collection);   // 注册更新工单的路由
         
-        // 4. 将API路由器挂载到/api路径下
-        // 这样所有API请求都需要以/api开头，如：/api/orders
-        app.use('/api', apiRouter);
+        // 4. 将API路由器挂载到配置的路径前缀下
+        // 这样所有API请求都需要以配置的前缀开头，如：/api/orders
+        app.use(APP_CONFIG.API_PREFIX, apiRouter);
 
         // 5. 启动HTTP服务器，监听指定端口
         app.listen(PORT,() => {
