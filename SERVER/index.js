@@ -1,54 +1,89 @@
-const express = require("express")
-const cors = require("cors")
+/**
+ * 主服务器文件 - Express.js 后端服务器
+ * 功能：搭建RESTful API服务器，处理工单管理系统的所有HTTP请求
+ * 包含：CORS跨域配置、中间件设置、路由配置、服务器启动
+ * 作者：学习后端开发
+ */
 
-const create_fun = require("./module/create");
-const search_fun = require("./module/search");
-const patch_fun = require("./module/patch")
-const delete_fun = require("./module/delete")
-const connectDB = require("./back")
+// ==================== 依赖导入 ====================
+const express = require("express")  // Express.js框架，用于构建Web服务器
+const cors = require("cors")         // CORS中间件，解决跨域问题
 
-const app = express()
-const PORT = 3000;
+// 导入各个功能模块（CRUD操作）
+const create_fun = require("./module/create");  // 创建工单功能
+const search_fun = require("./module/search");  // 查询工单功能
+const patch_fun = require("./module/patch")     // 更新工单功能
+const delete_fun = require("./module/delete")   // 删除工单功能
+const connectDB = require("./back")              // 数据库连接模块
 
-// CORS配置 - 允许前端访问
+// ==================== 服务器配置 ====================
+const app = express()    // 创建Express应用实例
+const PORT = 3000;       // 服务器监听端口号
+
+// ==================== 中间件配置 ====================
+
+/**
+ * CORS跨域配置中间件
+ * 作用：允许前端应用访问后端API，解决浏览器同源策略限制
+ */
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://10.22.12.186:5173'], // Vite默认端口
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // 允许的前端地址（Vite开发服务器默认端口）
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],         // 允许的HTTP方法
+    allowedHeaders: ['Content-Type', 'Authorization'],          // 允许的请求头
+    credentials: true                                            // 允许携带凭证（如cookies）
 }));
 
-// 解析JSON请求体
+/**
+ * JSON解析中间件
+ * 作用：自动解析请求体中的JSON数据，并将其挂载到req.body上
+ */
 app.use(express.json());
 
-// 添加请求日志中间件
+/**
+ * 请求日志中间件
+ * 作用：记录每个HTTP请求的时间、方法和路径，便于调试和监控
+ */
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
+    next(); // 调用next()继续执行下一个中间件
 });
 
+// ==================== 服务器启动函数 ====================
+
+/**
+ * 启动服务器的异步函数
+ * 流程：连接数据库 → 配置路由 → 启动HTTP服务器
+ */
 async function startServer(){
-    let collection;
+    let collection; // 数据库集合对象
     try{
+        // 1. 连接数据库并获取集合对象
         collection = await connectDB();
 
-        // 为所有路由添加 /api 前缀
+        // 2. 创建API路由器，统一管理所有API路由
         const apiRouter = express.Router();
         
-        create_fun(apiRouter,collection);
-        search_fun(apiRouter,collection);
-        delete_fun(apiRouter,collection);
-        patch_fun(apiRouter,collection);
+        // 3. 将各个功能模块注册到路由器上
+        // 每个模块会在内部定义具体的路由路径和处理函数
+        create_fun(apiRouter,collection);  // 注册创建工单的路由
+        search_fun(apiRouter,collection);  // 注册查询工单的路由
+        delete_fun(apiRouter,collection);  // 注册删除工单的路由
+        patch_fun(apiRouter,collection);   // 注册更新工单的路由
         
+        // 4. 将API路由器挂载到/api路径下
+        // 这样所有API请求都需要以/api开头，如：/api/orders
         app.use('/api', apiRouter);
 
+        // 5. 启动HTTP服务器，监听指定端口
         app.listen(PORT,() => {
             console.log(`服务器已成功启动，监听端口: ${PORT}`)
         })
     }catch(err){
+        // 如果启动过程中出现错误，打印错误信息并退出程序
         console.log("错误：",err);
-        process.exit(1);
+        process.exit(1); // 异常退出
     }
 }
 
-startServer();
+// ==================== 启动服务器 ====================
+startServer(); // 调用启动函数
