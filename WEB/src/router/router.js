@@ -4,10 +4,10 @@ import MainLayout from "@/layouts/MainLayout.vue";
 const routes = [
     {path: "/", redirect: "/home"},
     {path: "/home", component: MainLayout, children:[{path: "", component: () => import("../pages/HomeContent.vue")}]},
-    {path: "/function1", component: MainLayout, children: [{path: "", component: () => import("../pages/function1.vue")}]},
-    {path: "/function2", component: MainLayout, children: [{path: "", component: () => import("../pages/function2.vue")}]},
-    {path: "/function3", component: MainLayout, children: [{path: "", component: () => import("../pages/function3.vue")}]},
-    {path: "/function4", component: MainLayout, children: [{path: "", component: () => import("../pages/function4.vue")}]},
+    {path: "/create", component: MainLayout, children: [{path: "", component: () => import("../pages/Create.vue")}]},
+    {path: "/search", component: MainLayout, children: [{path: "", component: () => import("../pages/Search.vue")}]},
+    {path: "/update", component: MainLayout, children: [{path: "", component: () => import("../pages/Update.vue")}]},
+    {path: "/delete", component: MainLayout, children: [{path: "", component: () => import("../pages/Delete.vue")}]},
 
 ];
 

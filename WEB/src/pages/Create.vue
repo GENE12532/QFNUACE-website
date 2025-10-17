@@ -1,4 +1,3 @@
-<!-- src/pages/function1.vue -->
 <template>
   <div>
     <div class="text-center mb-8">
@@ -6,7 +5,7 @@
       <p class="text-lg text-gray-600">填写电脑维修信息并提交工单</p>
     </div>
 
-    <div class="bg-white rounded-lg p-6 shadow-md max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg p-6 shadow-md max-w-4xl mx-auto" style="background-color: rgba(255,255,255,0.6);">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- 基本信息 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

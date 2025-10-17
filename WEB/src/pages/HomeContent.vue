@@ -1,4 +1,3 @@
-<!-- src/pages/HomeContent.vue -->
 <template>
   <div>
     <div class="text-center mb-12">
