@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # MongoDB 数据库服务
+  mongodb:
+    image: mongo:6.0
+    container_name: qfnuace-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=Work_order
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - qfnuace-network
+
+  # 后端 Node.js 服务
+  backend:
+    build:
+      context: ./SERVER
+      dockerfile: Dockerfile
+    container_name: qfnuace-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DB_NAME=Work_order
+      - COLLECTION_NAME=order
+      - SERVER_PORT=3000
+      - DEFAULT_ORDER_STATUS=待处理
+      - DEFAULT_CONTACT_METHOD=电话
+    depends_on:
+      - mongodb
+    networks:
+      - qfnuace-network
+    volumes:
+      - ./SERVER:/app
+      - /app/node_modules
+
+  # 前端 Vue.js 应用
+  frontend:
+    build:
+      context: ./WEB
+      dockerfile: Dockerfile
+    container_name: qfnuace-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3000/api
+      - VITE_APP_TITLE=电脑维修工单管理系统
+    depends_on:
+      - backend
+    networks:
+      - qfnuace-network
+    volumes:
+      - ./WEB:/app
+      - /app/node_modules
+
+  # Nginx 反向代理 (可选，用于生产环境)
+  nginx:
+    image: nginx:alpine
+    container_name: qfnuace-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - qfnuace-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  qfnuace-network:
+    driver: bridge
