@@ -2,10 +2,10 @@
 import { ref } from 'vue';
 
 const list = ref([
-  { id: 1, name: "创建工单", icon: "📝", description: "创建新的电脑维修工单，填写详细的维修信息", href: "function1" },
-  { id: 2, name: "查询工单", icon: "🔍", description: "根据条件搜索和查看现有的维修工单", href: "function2" },
-  { id: 3, name: "更新工单", icon: "✏️", description: "修改和更新现有工单的信息", href: "function3" },
-  { id: 4, name: "删除工单", icon: "🗑️", description: "删除不需要的工单（此操作不可恢复）", href: "function4" },
+  { id: 1, name: "创建工单", icon: "📝", description: "创建新的电脑维修工单，填写详细的维修信息", href: "create" },
+  { id: 2, name: "查询工单", icon: "🔍", description: "根据条件搜索和查看现有的维修工单", href: "search" },
+  { id: 3, name: "更新工单", icon: "✏️", description: "修改和更新现有工单的信息", href: "update" },
+  { id: 4, name: "删除工单", icon: "🗑️", description: "删除不需要的工单（此操作不可恢复）", href: "delete" },
 ]);
 
 // 操作指南数据
@@ -49,7 +49,7 @@ const toggleGuide = () => {
 </script>
 
 <template>
-  <div class="h-full p-6 overflow-y-auto" style="background-color: rgba(239, 68, 68, 0.3);">
+  <div class="h-full p-6 overflow-y-auto">
     <!-- 操作指南按钮 -->
     <div class="mb-6">
       <button
@@ -107,8 +107,8 @@ const toggleGuide = () => {
       >
         <div
             @click="navigate"
-            class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 p-6 cursor-pointer transform hover:-translate-y-1"
-            style="background-color: rgba(255, 255, 255, 0.8)"
+            class="group bg-white my-8 shadow-md hover:shadow-xl rounded-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 p-6 cursor-pointer transform hover:-translate-y-1"
+            style="background-color: rgba(255, 255, 255, 0.6)"
         >
           <div class="flex items-start space-x-4">
             <!-- 图标 -->
