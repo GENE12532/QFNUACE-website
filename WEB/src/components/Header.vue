@@ -8,10 +8,10 @@ const register = () => {};
 
 const navItems = [
   { name: "首页", href: "/" },
-  { name: "功能1", href: "/create" },
-  { name: "功能2", href: "#" },
+  { name: "工单相关", href: "/create" },
+  { name: "芝士雪豹", href: "#" },
   { name: "组合功能", href: "#", hasDropdown: true },
-  { name: "关于", href: "#" }
+  { name: "关于", href: "/about" }
 ];
 </script>
 
