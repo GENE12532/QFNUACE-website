@@ -12,15 +12,15 @@ echo "=========================================="
 # 检查Docker和Docker Compose是否安装
 check_dependencies() {
     echo "检查依赖..."
-    if ! command -v docker &> /dev/null; then
+    if ! command -v docker > /dev/null 2>&1; then
         echo "错误: Docker未安装"
         echo "请先安装Docker: https://docs.docker.com/engine/install/"
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    if ! command -v docker-compose > /dev/null 2>&1; then
         echo "警告: docker-compose未安装，尝试使用docker compose插件..."
-        if ! docker compose version &> /dev/null; then
+        if ! docker compose version > /dev/null 2>&1; then
             echo "错误: docker compose插件也未安装"
             echo "请安装docker-compose或docker compose插件"
             exit 1
@@ -37,26 +37,31 @@ check_dependencies() {
 check_ports() {
     echo "检查端口占用情况..."
     
-    local ports=("8080" "8443" "3000" "5173" "27017")
-    local occupied=()
+    ports="8081 8443 3000 5173 27017"
+    occupied=""
     
-    for port in "${ports[@]}"; do
+    for port in $ports; do
         if ss -tuln | grep ":$port " > /dev/null; then
-            occupied+=("$port")
+            if [ -z "$occupied" ]; then
+                occupied="$port"
+            else
+                occupied="$occupied $port"
+            fi
             echo "警告: 端口 $port 已被占用"
         else
             echo "✓ 端口 $port 可用"
         fi
     done
     
-    if [ ${#occupied[@]} -gt 0 ]; then
-        echo "注意: 以下端口已被占用: ${occupied[*]}"
+    if [ ! -z "$occupied" ]; then
+        echo "注意: 以下端口已被占用: $occupied"
         echo "如果这些端口被本应用使用，请修改docker-compose.production.yml中的端口映射"
-        read -p "是否继续? (y/n): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
-        fi
+        printf "是否继续? (y/n): "
+        read answer
+        case "$answer" in
+            [Yy]*) ;;
+            *) exit 1 ;;
+        esac
     fi
 }
 
@@ -97,7 +102,7 @@ show_access_info() {
     echo "=========================================="
     echo ""
     echo "服务访问信息:"
-    echo "1. 前端应用: http://服务器IP:8080"
+    echo "1. 前端应用: http://服务器IP:8081"
     echo "2. 后端API: http://服务器IP:3000/api"
     echo "3. MongoDB数据库: 服务器IP:27017"
     echo ""

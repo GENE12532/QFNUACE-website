@@ -17,7 +17,7 @@ const create_fun = require("./module/create");  // 创建工单功能
 const search_fun = require("./module/search");  // 查询工单功能
 const patch_fun = require("./module/patch")     // 更新工单功能
 const delete_fun = require("./module/delete")   // 删除工单功能
-const connectDB = require("./back")              // 数据库连接模块
+const connectDB = require("./db")              // 数据库连接模块
 
 // ==================== 服务器配置 ====================
 const app = express()    // 创建Express应用实例
@@ -49,6 +49,21 @@ app.use((req, res, next) => {
 // ==================== 健康检查路由 ====================
 
 /**
+ * 根路径路由 - 用于测试服务器是否正常运行
+ */
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: '计算机维修工单管理系统 API 服务器',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      api: `${APP_CONFIG.API_PREFIX}/`,
+      health: `${APP_CONFIG.API_PREFIX}/health`
+    }
+  });
+});
+
+/**
  * 健康检查接口
  * 用于Docker容器健康检查和监控
  */
@@ -72,6 +87,7 @@ async function startServer(){
     try{
         // 1. 连接数据库并获取集合对象
         collection = await connectDB();
+        console.log("数据库已连接...");
 
         // 2. 创建API路由器，统一管理所有API路由
         const apiRouter = express.Router();
@@ -87,15 +103,26 @@ async function startServer(){
         // 这样所有API请求都需要以配置的前缀开头，如：/api/orders
         app.use(APP_CONFIG.API_PREFIX, apiRouter);
 
-        // 5. 启动HTTP服务器，监听指定端口
-        app.listen(PORT,() => {
-            console.log(`服务器已成功启动，监听端口: ${PORT}`)
-        })
     }catch(err){
-        // 如果启动过程中出现错误，打印错误信息并退出程序
-        console.log("错误：",err);
-        process.exit(1); // 异常退出
+        // 如果数据库连接失败，仍然启动服务器但显示警告
+        console.log("数据库连接失败，但服务器将继续启动（API功能将不可用）:", err.message);
+        
+        // 添加一个错误处理路由，当数据库不可用时返回错误信息
+        const apiRouter = express.Router();
+        apiRouter.all('*', (req, res) => {
+            res.status(503).json({
+                error: '数据库不可用',
+                message: '无法连接到 MongoDB 数据库，请检查数据库服务是否运行',
+                timestamp: new Date().toISOString()
+            });
+        });
+        app.use(APP_CONFIG.API_PREFIX, apiRouter);
     }
+
+    // 5. 启动HTTP服务器，监听指定端口
+    app.listen(PORT,() => {
+        console.log(`服务器已成功启动，监听端口: ${PORT}`)
+    })
 }
 
 // ==================== 启动服务器 ====================

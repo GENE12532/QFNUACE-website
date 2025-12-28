@@ -7,24 +7,24 @@
 // ==================== 数据库配置 ====================
 const DATABASE_CONFIG = {
     // MongoDB连接URL
-    URL: "mongodb://localhost:27017",
+    URL: process.env.MONGODB_URL || "mongodb://localhost:27017",
     
     // 数据库名称
-    DB_NAME: "Work_order",
+    DB_NAME: process.env.DB_NAME || "Work_order",
     
     // 集合名称（相当于表名）
-    COLLECTION_NAME: "order"
+    COLLECTION_NAME: process.env.COLLECTION_NAME || "order"
 };
 
 // ==================== 服务器配置 ====================
 const SERVER_CONFIG = {
     // 服务器端口号
-    PORT: 3000,
+    PORT: process.env.SERVER_PORT || 3000,
     
     // CORS跨域配置
     CORS: {
         // 允许的前端地址
-        origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://127.0.0.1:5173'],
         
         // 允许的HTTP方法
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],

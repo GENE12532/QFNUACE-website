@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM node:alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
