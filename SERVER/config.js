@@ -13,7 +13,16 @@ const DATABASE_CONFIG = {
     DB_NAME: process.env.DB_NAME || "Work_order",
     
     // 集合名称（相当于表名）
-    COLLECTION_NAME: process.env.COLLECTION_NAME || "order"
+    COLLECTION_NAME: process.env.COLLECTION_NAME || "order",
+    
+    // 用户集合名称
+    USER_COLLECTION_NAME: "users"
+};
+
+// ==================== JWT配置 ====================
+const JWT_CONFIG = {
+    SECRET: process.env.JWT_SECRET || "qfnuace-secret-key-change-it-in-prod",
+    EXPIRES_IN: "24h"
 };
 
 // ==================== 服务器配置 ====================
@@ -24,7 +33,7 @@ const SERVER_CONFIG = {
     // CORS跨域配置
     CORS: {
         // 允许的前端地址
-        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost', 'http://127.0.0.1'],
         
         // 允许的HTTP方法
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -148,5 +157,6 @@ const APP_CONFIG = {
 module.exports = {
     DATABASE_CONFIG,
     SERVER_CONFIG,
-    APP_CONFIG
+    APP_CONFIG,
+    JWT_CONFIG
 };

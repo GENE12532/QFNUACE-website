@@ -10,13 +10,14 @@ const express = require("express")  // Express.js框架，用于构建Web服务�
 const cors = require("cors")         // CORS中间件，解决跨域问题
 
 // 导入配置文件
-const { SERVER_CONFIG, APP_CONFIG } = require("./config")
+const { SERVER_CONFIG, APP_CONFIG, DATABASE_CONFIG } = require("./config")
 
 // 导入各个功能模块（CRUD操作）
 const create_fun = require("./module/create");  // 创建工单功能
 const search_fun = require("./module/search");  // 查询工单功能
 const patch_fun = require("./module/patch")     // 更新工单功能
 const delete_fun = require("./module/delete")   // 删除工单功能
+const auth_fun = require("./module/auth")       // 认证功能
 const connectDB = require("./db")              // 数据库连接模块
 
 // ==================== 服务器配置 ====================
@@ -83,17 +84,21 @@ app.get(`${APP_CONFIG.API_PREFIX}/health`, (req, res) => {
  * 流程：连接数据库 → 配置路由 → 启动HTTP服务器
  */
 async function startServer(){
-    let collection; // 数据库集合对象
+    let db; // 数据库对象
     try{
-        // 1. 连接数据库并获取集合对象
-        collection = await connectDB();
+        // 1. 连接数据库并获取数据库对象
+        db = await connectDB();
         console.log("数据库已连接...");
+
+        // 获取工单集合
+        const collection = db.collection(DATABASE_CONFIG.COLLECTION_NAME || "order");
 
         // 2. 创建API路由器，统一管理所有API路由
         const apiRouter = express.Router();
         
         // 3. 将各个功能模块注册到路由器上
         // 每个模块会在内部定义具体的路由路径和处理函数
+        auth_fun(apiRouter, db);           // 注册认证路由 (传入db对象以访问users集合)
         create_fun(apiRouter,collection);  // 注册创建工单的路由
         search_fun(apiRouter,collection);  // 注册查询工单的路由
         delete_fun(apiRouter,collection);  // 注册删除工单的路由

@@ -7,6 +7,7 @@
 
 // 导入配置文件
 const { APP_CONFIG } = require("../config")
+const { verifyToken } = require("../middleware/auth");
 
 /**
  * 导出查询工单功能模块
@@ -117,8 +118,10 @@ module.exports = (app, collection) => {
 
     // ==================== 7. 路由注册 ====================
     // 注册多条件查询路由：GET /api/orders
-    app.get("/orders", search_fun);
+    // 需要登录才能查询
+    app.get("/orders", verifyToken, search_fun);
     
     // 注册单个工单查询路由：GET /api/orders/:id
-    app.get("/orders/:id", getOrderById);
+    // 需要登录才能查询
+    app.get("/orders/:id", verifyToken, getOrderById);
 }

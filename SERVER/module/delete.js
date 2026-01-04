@@ -7,6 +7,7 @@
 
 // 导入MongoDB的ObjectId类，用于处理MongoDB文档的唯一标识符
 const { ObjectId } = require('mongodb');
+const { verifyToken, checkRole } = require("../middleware/auth");
 
 /**
  * 导出删除工单功能模块
@@ -75,5 +76,6 @@ module.exports = (app, collection) => {
     // 将删除工单的处理函数注册到DELETE /orders/:id路由上
     // 完整路径为：DELETE /api/orders/:id（因为在index.js中挂载了/api前缀）
     // DELETE方法专门用于删除资源
-    app.delete("/orders/:id", delete_fun);
+    // 仅管理员可删除工单
+    app.delete("/orders/:id", verifyToken, checkRole(['admin']), delete_fun);
 }

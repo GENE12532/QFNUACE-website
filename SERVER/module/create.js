@@ -7,6 +7,7 @@
 
 // 导入配置文件
 const { APP_CONFIG } = require("../config")
+const { verifyToken, checkRole } = require("../middleware/auth");
 
 /**
  * 导出创建工单功能模块
@@ -117,5 +118,6 @@ module.exports = (app,collection) => {
     // ==================== 7. 路由注册 ====================
     // 将创建工单的处理函数注册到POST /create路由上
     // 完整路径为：POST /api/create（因为在index.js中挂载了/api前缀）
-    app.post("/create", create_fun)
+    // 仅管理员可创建工单
+    app.post("/create", verifyToken, checkRole(['admin']), create_fun)
 }

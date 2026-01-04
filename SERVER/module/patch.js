@@ -7,6 +7,7 @@
 
 // 导入MongoDB的ObjectId类，用于处理MongoDB文档的唯一标识符
 const { ObjectId } = require('mongodb');
+const { verifyToken, checkRole } = require("../middleware/auth");
 
 /**
  * 导出更新工单功能模块
@@ -83,5 +84,6 @@ module.exports = (app, collection) => {
     // 将更新工单的处理函数注册到PATCH /orders/:id路由上
     // 完整路径为：PATCH /api/orders/:id（因为在index.js中挂载了/api前缀）
     // PATCH方法适用于部分更新，与PUT（完全替换）不同
-    app.patch("/orders/:id", patch_fun)
+    // 仅管理员可更新工单
+    app.patch("/orders/:id", verifyToken, checkRole(['admin']), patch_fun)
 }
